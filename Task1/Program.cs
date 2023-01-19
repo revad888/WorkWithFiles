@@ -1,85 +1,132 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
+using static System.Net.WebRequestMethods;
 
 namespace Task1
 {
-
-
-
-    //Напишите программу, которая чистит нужную нам папку от файлов  и папок, которые не использовались более 30 минут
-
-    
-        //0 баллов: задача решена неверно или отсутствует доступ к репозиторию.
-        //2 балла (хорошо): код должен удалять папки рекурсивно (если в нашей папке лежит папка со вложенными файлами, не должно возникнуть проблем с её удалением).
-        //4 балла(отлично) : предусмотрена проверка на наличие папки по заданному пути(строчка if directory.Exists); предусмотрена обработка
-        //исключений при доступе к папке(блок try-catch, а также логирует исключение в консоль).
-
     internal class Program
     {
         static void Main(string[] args)
         {
-            string p = "C:\\Users\\revad.LAPTOP-GFS75M26\\Desktop\\test";
-            
-            DirectoryInfo d = new DirectoryInfo(p);
-            List<DirectoryInfo> di = FindSubDirectories(d);
+            Console.Write("Введите путь к папке");
+            string path = Console.ReadLine();
+            DirC(path);
 
-            foreach (DirectoryInfo f in di)
-            {
-                Console.WriteLine(f.FullName);
-                
-                Console.WriteLine("sadasdasdasdasda");
-                Console.ReadKey();
-            }
+
         }
 
-        public void DirClearning (string path)
+        public static void DirC(DirectoryInfo directory)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
-            
-            if (dir.Exists )
-            {
 
-                try
+            DateTime now = DateTime.Now;
+            TimeSpan deltaT = TimeSpan.FromMinutes(5);
+
+                if (now - directory.LastWriteTime > deltaT)
                 {
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Директори по введенному пути не существует. Введите путь к существующей директории.");
-            }
-        }
-
-        public static List<DirectoryInfo> FindSubDirectories (DirectoryInfo directory)
-        {
-            List<DirectoryInfo> directoryInfos= new List<DirectoryInfo>();
-
-            DirectoryInfo[] dirs = directory.GetDirectories();
-            if (dirs.Length > 0)
-            {
-                foreach (DirectoryInfo d in dirs)
-                {
-                    List<DirectoryInfo> b = FindSubDirectories(d);
-                    foreach (DirectoryInfo f in b)
+                    try
                     {
-
-                    
-                        if (!directoryInfos.Contains(d))
+                        bool isEmpty = IsEmpty(directory);
+                        if (!isEmpty)
                         {
-                            directoryInfos.Add(d);
+                            FileInfo[] files = directory.GetFiles();
+                            DelFiles(files);
+                            DirectoryInfo[] dirs = directory.GetDirectories();
+                            foreach (DirectoryInfo dir in dirs)
+                            {
+
+                                DirC(dir);
+
+                            }
+                            bool isEmptyOut = IsEmpty(directory);
+                            if (isEmptyOut) 
+                            { 
+                                directory.Delete();
+                                Console.WriteLine($"Папка {directory.Name} по пути {directory.FullName} была удалена");
+                            }
+                        }
+                        else
+                        {   
+                             
+                            directory.Delete();
+                            Console.WriteLine($"Папка {directory.Name} по пути {directory.FullName} была удалена");
+
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 }
+                
+
+        }
+
+        public static void DirC(string path)
+        {
+            DirectoryInfo directory = new DirectoryInfo(path);
+            DateTime now = DateTime.Now;
+            TimeSpan deltaT = TimeSpan.FromMinutes(30);
+            if (directory.Exists)
+            {
+                if (now - directory.LastWriteTime > deltaT)
+                {
+                    try
+                    {
+                        bool isEmpty = IsEmpty(directory);
+                        if (!isEmpty)
+                        {
+                            FileInfo[] files = directory.GetFiles();
+                            DelFiles(files);
+                            DirectoryInfo[] dirs = directory.GetDirectories();
+                            foreach (DirectoryInfo dir in dirs)
+                            {
+
+                                DirC(dir);
+
+                            }
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+
             }
             else
             {
-                directoryInfos.Add(directory);
+                Console.WriteLine("Папка не существует! Введите корректный путь.");
             }
-           return directoryInfos;
         }
+        public static bool IsEmpty (DirectoryInfo directory)
+            {
+            DirectoryInfo[] dirs = directory.GetDirectories();
+            FileInfo[] files = directory.GetFiles();
+            bool IsEmty = (dirs.Length == 0 & files.Length == 0);
+            if(IsEmty)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+            } 
+        public static void DelFiles(FileInfo[] files)
+        {
+            DateTime now = DateTime.Now;
+            TimeSpan deltaT = TimeSpan.FromMinutes(30);
+            foreach (FileInfo f in files)
+            {
+                if (now - f.LastWriteTime > deltaT)
+                {
+                    f.Delete();
+                    Console.WriteLine($"Файл {f.Name} расположенный по пути {f.Directory.FullName} был удален");
+                }
+            }
+        } 
         
     }
 }
