@@ -17,12 +17,6 @@ namespace Task1
 
         public static void DirC(DirectoryInfo directory)
         {
-
-            DateTime now = DateTime.Now;
-            TimeSpan deltaT = TimeSpan.FromMinutes(5);
-
-                if (now - directory.LastWriteTime > deltaT)
-                {
                     try
                     {
                         bool isEmpty = IsEmpty(directory);
@@ -56,7 +50,7 @@ namespace Task1
                     {
                         Console.WriteLine(e.Message);
                     }
-                }
+
                 
 
         }
@@ -64,12 +58,10 @@ namespace Task1
         public static void DirC(string path)
         {
             DirectoryInfo directory = new DirectoryInfo(path);
-            DateTime now = DateTime.Now;
-            TimeSpan deltaT = TimeSpan.FromMinutes(30);
+
             if (directory.Exists)
             {
-                if (now - directory.LastWriteTime > deltaT)
-                {
+
                     try
                     {
                         bool isEmpty = IsEmpty(directory);
@@ -91,7 +83,7 @@ namespace Task1
                     {
                         Console.WriteLine(e.Message);
                     }
-                }
+
 
             }
             else
